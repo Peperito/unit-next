@@ -1,10 +1,16 @@
 import React, { useState } from 'react'
+import { useRouter } from 'next/router';
+import {useRegisterMutation} from "../generated/graphql"
+
+
 
 interface registerProps {
     
 }
 
 const Register: React.FC<registerProps> = ({}) => {
+
+    const router = useRouter();
 
     const defaultFormData = {
         email: "",
@@ -71,15 +77,28 @@ const Register: React.FC<registerProps> = ({}) => {
         }))};
     }
 
+      const [registerMutation, { data, loading, error }] = useRegisterMutation({
+        variables: {
+            email: email,
+            password: password,
+            name: name,
+            age: age,
+         },
+        });
 
-    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+
+
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if(!validForm){
             return null;
         } else {
-            console.log(formData)
+            const response = await registerMutation();
+            return console.log("test");
         }
     }
+
+
 
     const emailErrorMessage = email.match(emailRegex) ? null : "Should be a valid email address";
     const passwordErrorMessage = password.match(passwordRegex) ? null :"Must be at least 8 characters and at least 1 uppercase letter, 1 lowercase letter, and 1 number";
