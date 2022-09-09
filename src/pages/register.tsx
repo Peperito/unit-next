@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/router';
-import {useRegisterMutation} from "../generated/graphql"
-
+import { useRegisterMutation, RegisterMutationVariables } from '../generated/graphql';
+import NextLink from "next/link"
 
 
 interface registerProps {
@@ -12,12 +12,12 @@ const Register: React.FC<registerProps> = ({}) => {
 
     const router = useRouter();
 
-    const defaultFormData = {
+    const defaultFormData: RegisterMutationVariables = {
         email: "",
         password: "",
         name: "",
         age: 0,
-        preference: false,
+        emailUpdates: false,
     }
 
     const defaultFocuses = {
@@ -37,7 +37,7 @@ const Register: React.FC<registerProps> = ({}) => {
     const {email, password, name, age} = formData;
     const {emailFocus, passwordFocus, nameFocus, ageFocus} = focused;
 
-    formData.preference = checked;
+    formData.emailUpdates = checked;
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData((prevState) => ({
@@ -77,24 +77,30 @@ const Register: React.FC<registerProps> = ({}) => {
         }))};
     }
 
-      const [registerMutation, { data, loading, error }] = useRegisterMutation({
-        variables: {
-            email: email,
-            password: password,
-            name: name,
-            age: age,
-         },
-        });
-
-
+    const [mutate, {error}] = useRegisterMutation();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+
+        if(typeof formData.age == "string"){
+            formData.age = parseInt(formData.age);
+        }
+
         if(!validForm){
             return null;
         } else {
-            const response = await registerMutation();
-            return console.log("test");
+            try{
+                const response = await mutate({ variables:formData});
+                console.log(response.data?.register.name);
+            } catch(error) {
+                const stringError = new String(error);
+                if(stringError.includes("email")){
+                    window.alert("Email already in use")
+                }
+            } finally{
+                router.push("/");
+            }
+
         }
     }
 
@@ -102,7 +108,7 @@ const Register: React.FC<registerProps> = ({}) => {
 
     const emailErrorMessage = email.match(emailRegex) ? null : "Should be a valid email address";
     const passwordErrorMessage = password.match(passwordRegex) ? null :"Must be at least 8 characters and at least 1 uppercase letter, 1 lowercase letter, and 1 number";
-    const nameErrorMessage = name.length > 3 ? null : "Name must be at least 3 char long";
+    const nameErrorMessage = name.length > 2 ? null : "Name must be at least 3 char long";
     const ageErrorMessage = age > 12 ? null : "You must be 12 or more";
 
     const validForm = email.match(emailRegex) && password.match(passwordRegex) && name.length > 3 && age > 12
@@ -110,7 +116,9 @@ const Register: React.FC<registerProps> = ({}) => {
     return (
         <div className="mx-auto w-full max-w-md font-textFont">
             <div className="flex flex-col justify-center items-center">
-                <img src="unit-logo-small.png" alt="unitlogo" />
+                <NextLink href="/">
+                <img className="cursor-pointer" src="unit-logo-small.png" alt="unitlogo" />
+                </NextLink>
                 <h1 className="text-4xl font-bold text-slate-900">Create your account</h1>
                 <h2 className="mt-2 text-lg font-semibold text-slate-900"> Already have an account?  
                     <a href="#" className="text-orange-400 hover:text-orange-200"> login</a>
@@ -153,8 +161,8 @@ const Register: React.FC<registerProps> = ({}) => {
                         </div>
                     </div>
                     <div className="flex items-center">
-                        <input onChange={onCheck} id="preference" name="preference" type="checkbox" className="rounded border-gray-300 text-customBlue-200 focus:ring-customBlue-200" />
-                        <label htmlFor="preference" className="ml-4 block text-sm text-gray-100"
+                        <input onChange={onCheck} id="emailUpdates" name="emailUpdates" type="checkbox" className="rounded border-gray-300 text-customBlue-200 focus:ring-customBlue-200" />
+                        <label htmlFor="emailUpdates" className="ml-4 block text-sm text-gray-100"
                           >I would like to receive Unit's
                           <a href="#" className="text-orange-400 hover:text-orange-200"> NewsLetter</a>.
                         </label>
