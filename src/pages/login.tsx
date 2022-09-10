@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/router';
-import NextLink from "next/link"
-import { LoginMutationVariables, useLoginMutation } from '../generated/graphql';
+import NextLink from "next/link";
+import { LoginMutationVariables, useLoginMutation, MeDocument } from '../generated/graphql';
 
 
 interface loginProps {
@@ -32,7 +32,7 @@ const Login: React.FC<loginProps> = ({}) => {
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const response = await mutate({ variables:formData});
+        const response = await mutate({ variables:formData, refetchQueries: [{query: MeDocument}] });
         if(!response.data?.login.user?.name){
             setErrorState(true)
         } else {

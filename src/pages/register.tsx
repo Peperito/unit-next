@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/router';
-import { useRegisterMutation, RegisterMutationVariables } from '../generated/graphql';
-import NextLink from "next/link"
+import { useRegisterMutation, RegisterMutationVariables, MeDocument } from '../generated/graphql';
+import NextLink from "next/link";
 
 
 interface registerProps {
@@ -90,7 +90,7 @@ const Register: React.FC<registerProps> = ({}) => {
             return null;
         } else {
             try{
-                const response = await mutate({ variables:formData});
+                const response = await mutate({ variables:formData, refetchQueries: [{query: MeDocument}] });
                 console.log(response.data?.register.name);
             } catch(error) {
                 const stringError = new String(error);
