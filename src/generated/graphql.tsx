@@ -21,6 +21,18 @@ export type BoolFilter = {
   not?: InputMaybe<NestedBoolFilter>;
 };
 
+export type Category = {
+  __typename?: 'Category';
+  _count?: Maybe<CategoryCount>;
+  id: Scalars['String'];
+  name: Scalars['String'];
+};
+
+export type CategoryCount = {
+  __typename?: 'CategoryCount';
+  posts: Scalars['Int'];
+};
+
 export type CategoryCreateNestedManyWithoutPostsInput = {
   connect?: InputMaybe<Array<CategoryWhereUniqueInput>>;
   connectOrCreate?: InputMaybe<Array<CategoryCreateOrConnectWithoutPostsInput>>;
@@ -42,6 +54,21 @@ export type CategoryListRelationFilter = {
   none?: InputMaybe<CategoryWhereInput>;
   some?: InputMaybe<CategoryWhereInput>;
 };
+
+export type CategoryOrderByRelationAggregateInput = {
+  _count?: InputMaybe<SortOrder>;
+};
+
+export type CategoryOrderByWithRelationInput = {
+  id?: InputMaybe<SortOrder>;
+  name?: InputMaybe<SortOrder>;
+  posts?: InputMaybe<PostOrderByRelationAggregateInput>;
+};
+
+export enum CategoryScalarFieldEnum {
+  Id = 'id',
+  Name = 'name'
+}
 
 export type CategoryWhereInput = {
   AND?: InputMaybe<Array<CategoryWhereInput>>;
@@ -110,9 +137,15 @@ export type LoginInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createOnePost: Post;
   login: UserResponse;
   logout: Scalars['Boolean'];
   register: User;
+};
+
+
+export type MutationCreateOnePostArgs = {
+  data: PostCreateInput;
 };
 
 
@@ -198,6 +231,47 @@ export type NestedStringNullableFilter = {
   startsWith?: InputMaybe<Scalars['String']>;
 };
 
+export type Post = {
+  __typename?: 'Post';
+  _count?: Maybe<PostCount>;
+  author: User;
+  authorId: Scalars['String'];
+  averageRating?: Maybe<Scalars['Float']>;
+  categories: Array<Category>;
+  createdAt: Scalars['DateTime'];
+  favoritedBy?: Maybe<User>;
+  favoritedbyId?: Maybe<Scalars['String']>;
+  id: Scalars['String'];
+  title: Scalars['String'];
+  updatedAt: Scalars['DateTime'];
+};
+
+
+export type PostCategoriesArgs = {
+  cursor?: InputMaybe<CategoryWhereUniqueInput>;
+  distinct?: InputMaybe<Array<CategoryScalarFieldEnum>>;
+  orderBy?: InputMaybe<Array<CategoryOrderByWithRelationInput>>;
+  skip?: InputMaybe<Scalars['Int']>;
+  take?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<CategoryWhereInput>;
+};
+
+export type PostCount = {
+  __typename?: 'PostCount';
+  categories: Scalars['Int'];
+};
+
+export type PostCreateInput = {
+  author: UserCreateNestedOneWithoutWrittenPostsInput;
+  averageRating?: InputMaybe<Scalars['Float']>;
+  categories?: InputMaybe<CategoryCreateNestedManyWithoutPostsInput>;
+  createdAt?: InputMaybe<Scalars['DateTime']>;
+  favoritedBy?: InputMaybe<UserCreateNestedOneWithoutFavoritePostsInput>;
+  id?: InputMaybe<Scalars['String']>;
+  title: Scalars['String'];
+  updatedAt?: InputMaybe<Scalars['DateTime']>;
+};
+
 export type PostCreateManyAuthorInput = {
   averageRating?: InputMaybe<Scalars['Float']>;
   createdAt?: InputMaybe<Scalars['DateTime']>;
@@ -280,6 +354,29 @@ export type PostOrderByRelationAggregateInput = {
   _count?: InputMaybe<SortOrder>;
 };
 
+export type PostOrderByWithRelationInput = {
+  author?: InputMaybe<UserOrderByWithRelationInput>;
+  authorId?: InputMaybe<SortOrder>;
+  averageRating?: InputMaybe<SortOrder>;
+  categories?: InputMaybe<CategoryOrderByRelationAggregateInput>;
+  createdAt?: InputMaybe<SortOrder>;
+  favoritedBy?: InputMaybe<UserOrderByWithRelationInput>;
+  favoritedbyId?: InputMaybe<SortOrder>;
+  id?: InputMaybe<SortOrder>;
+  title?: InputMaybe<SortOrder>;
+  updatedAt?: InputMaybe<SortOrder>;
+};
+
+export enum PostScalarFieldEnum {
+  AuthorId = 'authorId',
+  AverageRating = 'averageRating',
+  CreatedAt = 'createdAt',
+  FavoritedbyId = 'favoritedbyId',
+  Id = 'id',
+  Title = 'title',
+  UpdatedAt = 'updatedAt'
+}
+
 export type PostWhereInput = {
   AND?: InputMaybe<Array<PostWhereInput>>;
   NOT?: InputMaybe<Array<PostWhereInput>>;
@@ -303,8 +400,19 @@ export type PostWhereUniqueInput = {
 export type Query = {
   __typename?: 'Query';
   me?: Maybe<User>;
+  posts: Array<Post>;
   user?: Maybe<User>;
   users: Array<User>;
+};
+
+
+export type QueryPostsArgs = {
+  cursor?: InputMaybe<PostWhereUniqueInput>;
+  distinct?: InputMaybe<Array<PostScalarFieldEnum>>;
+  orderBy?: InputMaybe<Array<PostOrderByWithRelationInput>>;
+  skip?: InputMaybe<Scalars['Int']>;
+  take?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<PostWhereInput>;
 };
 
 
@@ -536,6 +644,14 @@ export type UserWhereUniqueInput = {
   userPreferenceId?: InputMaybe<Scalars['String']>;
 };
 
+export type CreatePostMutationVariables = Exact<{
+  title: Scalars['String'];
+  email: Scalars['String'];
+}>;
+
+
+export type CreatePostMutation = { __typename?: 'Mutation', createOnePost: { __typename?: 'Post', title: string } };
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String'];
   password: Scalars['String'];
@@ -560,6 +676,11 @@ export type RegisterMutationVariables = Exact<{
 
 export type RegisterMutation = { __typename?: 'Mutation', register: { __typename?: 'User', name: string } };
 
+export type GetPostsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', title: string, author: { __typename?: 'User', name: string } }> };
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -571,6 +692,40 @@ export type UsersQueryVariables = Exact<{ [key: string]: never; }>;
 export type UsersQuery = { __typename?: 'Query', users: Array<{ __typename?: 'User', name: string, id: string, email: string, role: Role }> };
 
 
+export const CreatePostDocument = gql`
+    mutation createPost($title: String!, $email: String!) {
+  createOnePost(data: {title: $title, author: {connect: {email: $email}}}) {
+    title
+  }
+}
+    `;
+export type CreatePostMutationFn = Apollo.MutationFunction<CreatePostMutation, CreatePostMutationVariables>;
+
+/**
+ * __useCreatePostMutation__
+ *
+ * To run a mutation, you first call `useCreatePostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPostMutation, { data, loading, error }] = useCreatePostMutation({
+ *   variables: {
+ *      title: // value for 'title'
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useCreatePostMutation(baseOptions?: Apollo.MutationHookOptions<CreatePostMutation, CreatePostMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePostMutation, CreatePostMutationVariables>(CreatePostDocument, options);
+      }
+export type CreatePostMutationHookResult = ReturnType<typeof useCreatePostMutation>;
+export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>;
+export type CreatePostMutationOptions = Apollo.BaseMutationOptions<CreatePostMutation, CreatePostMutationVariables>;
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(input: {email: $email, password: $password}) {
@@ -681,6 +836,44 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const GetPostsDocument = gql`
+    query GetPosts {
+  posts {
+    title
+    author {
+      name
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPostsQuery__
+ *
+ * To run a query within a React component, call `useGetPostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPostsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetPostsQuery(baseOptions?: Apollo.QueryHookOptions<GetPostsQuery, GetPostsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPostsQuery, GetPostsQueryVariables>(GetPostsDocument, options);
+      }
+export function useGetPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPostsQuery, GetPostsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPostsQuery, GetPostsQueryVariables>(GetPostsDocument, options);
+        }
+export type GetPostsQueryHookResult = ReturnType<typeof useGetPostsQuery>;
+export type GetPostsLazyQueryHookResult = ReturnType<typeof useGetPostsLazyQuery>;
+export type GetPostsQueryResult = Apollo.QueryResult<GetPostsQuery, GetPostsQueryVariables>;
+
 export const MeDocument = gql`
     query Me {
   me {

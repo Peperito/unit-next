@@ -1,0 +1,11 @@
+mutation createPost($title: String!, $email: String!){
+    createOnePost(data:{
+        title: $title,
+        author: {
+            connect: {
+                email: $email
+            }
+        }
+    })
+    {title}
+}
